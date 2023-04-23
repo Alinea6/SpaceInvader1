@@ -1,7 +1,4 @@
-using System;
 using System.Collections;
-using System.Collections.Generic;
-using Mono.Cecil;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -14,6 +11,8 @@ public class Shooter : MonoBehaviour
     [SerializeField] private float firingRateVariance = 0;
     [SerializeField] private float minimumFiringRate = 0.1f;
     [SerializeField] private bool useAI;
+    [SerializeField] private Transform[] shootingSpots;
+    [SerializeField] private int gunNumber;
     
     [HideInInspector]
     public bool isFiring;
@@ -56,21 +55,21 @@ public class Shooter : MonoBehaviour
     {
         while (true)
         {
-            GameObject projectile = Instantiate(projectilePrefab, transform.position, Quaternion.identity);
-
-            Rigidbody2D rb = projectile.GetComponent<Rigidbody2D>();
-            if (rb != null)
+            for (int i = 0; i < gunNumber; i++)
             {
-                rb.velocity = moveDirection * projectileSpeed;
-            }
-            
-            Destroy(projectile, projectileLifeTime);
+                GameObject projectile = Instantiate(projectilePrefab, shootingSpots[i].position, Quaternion.identity);
 
+                Rigidbody2D rb = projectile.GetComponent<Rigidbody2D>();
+                if (rb != null)
+                {
+                    rb.velocity = moveDirection * projectileSpeed;
+                }
+            
+                Destroy(projectile, projectileLifeTime);
+            }
             float timeToNextProjectile =
                 Random.Range(baseFiringRate - firingRateVariance, baseFiringRate + firingRateVariance);
-
             timeToNextProjectile = Mathf.Clamp(timeToNextProjectile, minimumFiringRate, float.MaxValue);
-            
             yield return new WaitForSeconds(timeToNextProjectile);
         }
     }
